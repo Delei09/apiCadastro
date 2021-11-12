@@ -1,6 +1,7 @@
 import {Response , Request} from 'express'
 import bcrypt from 'bcrypt'
 import CadastroModel from '../models/cadastroModel'
+import { Validacao } from './validacaoController'
 
 export type usuarioType = {
     nome : string ,
@@ -23,12 +24,16 @@ export default class CadastroController {
         const salt = bcrypt.genSaltSync(10)
         const senha = bcrypt.hashSync(usuario.senha , salt)
         usuario.senha = senha 
-
         try {
+
+            if(await Validacao.emailExiste(usuario.email) ){
+                throw ('Email já existe!') 
+             }
+
            const resposta = await CadastroModel.salvarUsuario(usuario)
            res.status(201).json(resposta)
-        }catch{
-            res.status(500).json("Erro do Servidor")
+        }catch(erro){
+            res.status(500).json(erro)
         }
     }
 
@@ -72,6 +77,11 @@ export default class CadastroController {
         
         const idN = parseInt(id)
         try {
+            if(usuario.email){
+                if(await Validacao.emailExiste(usuario.email) ){
+                    throw ('Email já existe!') 
+                 }
+            }
            const resposta = await CadastroModel.atualizarUsuario(usuario , idN)
            if(resposta){
                
@@ -79,8 +89,8 @@ export default class CadastroController {
            }else{
                res.status(200).json('Não foi possivel atualizar')
            }
-        }catch{
-            res.status(500).json("Erro do Servidor")
+        }catch(erro){
+            res.status(500).json(erro)
         }
     }
 
