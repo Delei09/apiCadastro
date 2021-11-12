@@ -17,7 +17,31 @@ export type atualizarUsuarioType = {
     telefone ?: string
 }
 
+export type login = {
+    email : string ,
+    senha : string
+}
+
 export default class CadastroController {
+
+    static async logar(usuario : usuarioType , res : Response){
+
+        try {
+            const emailExiste = await  Validacao.emailExiste(usuario.email)
+            if(emailExiste){
+                const senhaIgual = await Validacao.logar(usuario)
+                if(senhaIgual){
+                    res.status(200).json('Usuario Logado')
+                }else{
+                    throw ('Senha ou Email errado')
+                }
+            }else{
+                throw ('Email não existe.')
+            }
+        }catch(erro){
+            res.status(400).json(erro)
+        }
+    }
 
     static async salvarUsuario(usuario : usuarioType , res : Response){
 

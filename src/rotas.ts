@@ -7,6 +7,10 @@ rota.post('/cadastrar' , (req : Request , res : Response) => {
     CadastroController.salvarUsuario(req.body , res)
 })
 
+rota.post('/logar' , (req : Request , res : Response) => {
+    CadastroController.logar(req.body , res)
+})
+
 rota.get('/usuarios' , (req : Request, res : Response) => {
     CadastroController.consultarUsuarios(res)
 } )
