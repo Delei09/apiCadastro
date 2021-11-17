@@ -1,5 +1,6 @@
 import Express , {Request , Response} from "express";
 import CadastroController from "./controller/cadastroController";
+import Autenticacao from "./middlewares/autenticacao";
 
 const rota = Express.Router()
 
@@ -7,11 +8,15 @@ rota.post('/cadastrar' , (req : Request , res : Response) => {
     CadastroController.salvarUsuario(req.body , res)
 })
 
-rota.post('/logar' , (req : Request , res : Response) => {
+rota.post('/logar' ,
+    Autenticacao.localStorage ,
+    (req : Request , res : Response) => {
     CadastroController.logar(req.body , res)
 })
 
-rota.get('/usuarios' , (req : Request, res : Response) => {
+
+
+rota.get('/usuarios' , Autenticacao.AutenticacaoToken , (req : Request, res : Response) => {
     CadastroController.consultarUsuarios(res)
 } )
 

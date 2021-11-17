@@ -1,7 +1,10 @@
 import {Response , Request} from 'express'
-import bcrypt from 'bcrypt'
 import CadastroModel from '../models/cadastroModel'
 import { Validacao } from './validacaoController'
+
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import { Usuarios } from '../database/models/usuariosModels'
 
 export type usuarioType = {
     nome : string ,
@@ -22,25 +25,16 @@ export type login = {
     senha : string
 }
 
+export const palavraSecreta = '474a5cc7e7f44b8bdb9c676e2e1e3236'
+
 export default class CadastroController {
 
-    static async logar(usuario : usuarioType , res : Response){
+    static async logar(loginUsuario : login , res : Response){
 
-        try {
-            const emailExiste = await  Validacao.emailExiste(usuario.email)
-            if(emailExiste){
-                const senhaIgual = await Validacao.logar(usuario)
-                if(senhaIgual){
-                    res.status(200).json('Usuario Logado')
-                }else{
-                    throw ('Senha ou Email errado')
-                }
-            }else{
-                throw ('Email não existe.')
-            }
-        }catch(erro){
-            res.status(400).json(erro)
-        }
+        const token = jwt.sign({usuario : loginUsuario.email} , palavraSecreta) ;
+        const usuario = await Usuarios.findOne({where : {email : loginUsuario.email}}) ;
+        const  dadosUsuario = await usuario?.get() ;
+        res.status(201).json({token , usuario})
     }
 
     static async salvarUsuario(usuario : usuarioType , res : Response){
